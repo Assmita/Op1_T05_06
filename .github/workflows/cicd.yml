@@ -154,7 +154,7 @@ jobs:
   # Solo en main (nunca en develop ni feature)
   deploy:
     name: Deploy
-    runs-on: self-hosted  # <-- Cambiado: Ahora apunta a tu WSL local
+    runs-on: self-hosted  # <-- Apunta a tu máquina local
     needs: build-push
     if: github.ref == 'refs/heads/main'
     environment: production   # requiere aprobación manual si se configura
@@ -165,12 +165,12 @@ jobs:
 
       - name: Deploy Local en WSL
         run: |
-          cd /opt/devops-portfolio
+          cd ~/devops-TP06
           docker compose pull
           docker compose up -d --remove-orphans
           docker image prune -f
-          echo "Deploy local completado con éxito: $(date)" 
-       
+          echo "Deploy local completado con éxito: $(date)"
+
       - name: Healthcheck post-deploy
         run: |
           sleep 10
