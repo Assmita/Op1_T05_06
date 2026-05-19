@@ -1,9 +1,13 @@
+import datetime
+import os
+import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import psycopg2, os, datetime, time
+import psycopg2
 
 app = Flask(__name__)
 CORS(app)
+
 
 def get_conn():
     return psycopg2.connect(
@@ -13,6 +17,7 @@ def get_conn():
         user=os.getenv("DB_USER", "postgres"),
         password=os.getenv("DB_PASSWORD", "postgres")
     )
+
 
 def init_db():
     # Bucle de reintentos para esperar a que Postgres esté 100% listo
@@ -37,11 +42,16 @@ def init_db():
             break
         except Exception as e:
             retries -= 1
-            print(f"Postgres no está listo aún ({e}). Reintentando en 3 segundos... (Intentos restantes: {retries})")
+            print(
+                f"Postgres no está listo aún ({e}). "
+                f"Reintentando en 3 segundos... (Intentos restantes: {retries})"
+            )
             time.sleep(3)
+
 
 # Inicialización segura antes de levantar las rutas de la API
 init_db()
+
 
 @app.route("/health")
 def health():
@@ -51,12 +61,13 @@ def health():
         db_status = "connected"
     except Exception as e:
         db_status = f"error: {e}"
-    
+
     return jsonify({
         "status": "ok",
         "db": db_status,
         "time": datetime.datetime.utcnow().isoformat()
     })
+
 
 @app.route("/api/notes", methods=["GET"])
 def get_notes():
@@ -65,7 +76,8 @@ def get_notes():
         cur = conn.cursor()
         cur.execute("SELECT id, title, content, created_at FROM notes ORDER BY created_at DESC")
         rows = cur.fetchall()
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
         return jsonify([
             {"id": r[0], "title": r[1], "content": r[2], "created_at": str(r[3])}
             for r in rows
@@ -73,6 +85,7 @@ def get_notes():
     except Exception as e:
         print(f"Error en GET /api/notes: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/notes", methods=["POST"])
 def create_note():
@@ -86,11 +99,13 @@ def create_note():
         )
         note_id = cur.fetchone()[0]
         conn.commit()
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
         return jsonify({"id": note_id, "message": "nota creada"}), 201
     except Exception as e:
         print(f"Error en POST /api/notes: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/notes/<int:note_id>", methods=["DELETE"])
 def delete_note(note_id):
@@ -99,11 +114,13 @@ def delete_note(note_id):
         cur = conn.cursor()
         cur.execute("DELETE FROM notes WHERE id = %s", (note_id,))
         conn.commit()
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
         return jsonify({"message": "nota eliminada"})
     except Exception as e:
         print(f"Error en DELETE /api/notes: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
