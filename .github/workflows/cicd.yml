@@ -154,7 +154,7 @@ jobs:
   # Solo en main (nunca en develop ni feature)
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # <-- Cambiado: Ahora apunta a tu WSL local
     needs: build-push
     if: github.ref == 'refs/heads/main'
     environment: production   # requiere aprobación manual si se configura
@@ -163,25 +163,20 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            cd /opt/devops-portfolio
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
-            echo "Deploy completado: $(date)"
-
+      - name: Deploy Local en WSL
+        run: |
+          cd /opt/devops-portfolio
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker image prune -f
+          echo "Deploy local completado con éxito: $(date)" 
+       
       - name: Healthcheck post-deploy
         run: |
           sleep 10
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             --max-time 10 \
-            "http://${{ secrets.DEPLOY_HOST }}/health" || echo "000")
+            "http://localhost/health" || echo "000")
           if [ "$STATUS" = "200" ]; then
             echo "Deploy exitoso — HTTP $STATUS"
           else
