@@ -71,7 +71,6 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      # Instalación explícita y ordenada de dependencias del sistema y módulos de testing
       - name: Instalar librerías de sistema y dependencias Python
         run: |
           sudo apt-get update && sudo apt-get install -y libpq-dev gcc
@@ -142,7 +141,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Cache entre runs para builds más rápidos
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
