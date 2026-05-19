@@ -71,12 +71,13 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      # Inyección de dependencias binarias para Postgres y herramientas de cobertura de código
+      # Instalación explícita y ordenada de dependencias del sistema y módulos de testing
       - name: Instalar librerías de sistema y dependencias Python
         run: |
           sudo apt-get update && sudo apt-get install -y libpq-dev gcc
           pip install --upgrade pip
-          pip install -r backend/requirements.txt pytest pytest-cov
+          pip install pytest pytest-cov
+          pip install -r backend/requirements.txt
 
       - name: Correr tests con cobertura
         run: |
