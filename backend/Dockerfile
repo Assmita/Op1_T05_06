@@ -2,8 +2,11 @@
 FROM python:3.12-slim AS builder
 
 WORKDIR /build
-COPY requirements.txt .
+
+# Buscamos el archivo dentro de la subcarpeta backend
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
 
 # ── Stage 2: imagen final (sin herramientas de build) ───
 FROM python:3.12-slim AS final
@@ -17,11 +20,11 @@ WORKDIR /app
 # Copiar solo las dependencias instaladas desde el builder
 COPY --from=builder /install /usr/local
 
-# Copiar el código
-COPY app.py .
+# Copiar el código desde la subcarpeta backend
+COPY backend/app.py .
 
-# Script de inicio que espera a que Postgres esté listo
-COPY entrypoint.sh .
+# Script de inicio desde la subcarpeta backend
+COPY backend/entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
 # Usuario no-root
