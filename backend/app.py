@@ -24,7 +24,8 @@ def init_db():
     retries = 5
     while retries > 0:
         try:
-            print("Intentando conectar a la base de datos para inicializar tabla...")
+            print("Intentando conectar a la base de datos para " \
+            "inicializar tabla...")
             conn = get_conn()
             cur = conn.cursor()
             cur.execute("""
