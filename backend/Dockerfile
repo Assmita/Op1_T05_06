@@ -25,7 +25,11 @@ COPY backend/app.py .
 
 # Script de inicio desde la subcarpeta backend
 COPY backend/entrypoint.sh .
-RUN chmod +x entrypoint.sh
+
+# CURA ANTI-ERRORES: Forzamos formato Unix y damos permisos de ejecucion
+RUN apt-get update && apt-get install -y sed && rm -rf /var/lib/apt/lists/* \
+    && sed -i 's/\r$//' entrypoint.sh \
+    && chmod +x entrypoint.sh
 
 # Usuario no-root
 RUN useradd --create-home appuser && chown -R appuser /app
