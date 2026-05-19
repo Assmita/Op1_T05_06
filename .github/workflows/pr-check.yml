@@ -42,5 +42,9 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `### 🤖 Resultado del Check Informativo\n\n* **Estado:** ${status} (${{ job.status }})\n* **Hash del Commit:** \`${{ github.sha }}\`\n\n_Validación automatizada del pipeline de desarrollo._`
+              body: >
+                ### 🤖 Resultado del Check Informativo\n\n*
+                **Estado:** ${status} (${{ job.status }})\n*
+                **Hash del Commit:** \`${{ github.sha }}\`\n\n_Validación
+                automatizada del pipeline de desarrollo._
             });
